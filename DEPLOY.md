@@ -30,6 +30,9 @@ Créer `/etc/abaque.env` (lisible uniquement par root et l'utilisateur de servic
 SECRET_KEY=<clé générée, voir ci-dessous>
 DEBUG=false
 ALLOWED_HOSTS=abaque.mondomaine.fr
+OIDC_CLIENT_ID=<identifiant client>
+OIDC_CLIENT_SECRET=<secret client>
+OIDC_DISCOVERY_URL=https://sso.mondomaine.fr/.well-known/openid-configuration
 ```
 
 Générer la clé :
@@ -39,6 +42,10 @@ Générer la clé :
 ```
 
 ⚠️ Avec `DEBUG=false`, l'application **refuse de démarrer** sans `SECRET_KEY` — c'est voulu.
+
+Dans le fournisseur SSO, déclarer l'URI de redirection exacte
+`https://abaque.mondomaine.fr/oidc/callback/`. Les endpoints OIDC dépendent du
+fournisseur ; remplacer ceux de l'exemple par ses valeurs documentées.
 
 ### Base de données et fichiers statiques
 

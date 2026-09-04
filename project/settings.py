@@ -1,9 +1,14 @@
 import os
+import json
 from pathlib import Path
+from urllib.error import URLError
+from urllib.request import urlopen
 
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 DEBUG = os.environ.get("DEBUG", "true").lower() in ("true", "1", "yes")
 
@@ -19,6 +24,33 @@ else:
     ALLOWED_HOSTS = []
 
 LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/login/"
+
+AUTHENTICATION_BACKENDS = [
+    "abaque.oidc_backend.AbaqueOIDCBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+OIDC_RP_CLIENT_ID = os.environ.get("OIDC_CLIENT_ID", "")
+OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_CLIENT_SECRET", "")
+
+OIDC_DISCOVERY_URL = os.environ.get("OIDC_DISCOVERY_URL", "")
+OIDC_DISCOVERY = {}
+if OIDC_DISCOVERY_URL:
+    try:
+        with urlopen(OIDC_DISCOVERY_URL, timeout=10) as response:
+            OIDC_DISCOVERY = json.load(response)
+    except (OSError, URLError, ValueError) as error:
+        raise ImproperlyConfigured("Unable to load OIDC discovery document") from error
+
+OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_DISCOVERY.get("authorization_endpoint", "")
+OIDC_OP_TOKEN_ENDPOINT = OIDC_DISCOVERY.get("token_endpoint", "")
+OIDC_OP_USER_ENDPOINT = OIDC_DISCOVERY.get("userinfo_endpoint", "")
+OIDC_OP_JWKS_ENDPOINT = OIDC_DISCOVERY.get("jwks_uri", "")
+OIDC_RP_IDP_SIGN_KEY = os.environ.get("OIDC_IDP_SIGN_KEY") or None
+OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_SIGN_ALGORITHM", "RS256")
+OIDC_RP_SCOPES = "openid email profile"
 
 LANGUAGE_CODE = "fr"
 
@@ -34,6 +66,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "mozilla_django_oidc",
     "abaque",
 ]
 

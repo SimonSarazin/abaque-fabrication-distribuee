@@ -7,5 +7,6 @@ urlpatterns = [
     path("login/", choice_views.login_view, name="login"),
     path("logout/", choice_views.logout_view, name="logout"),
     path("register/", choice_views.register_view, name="register"),
+    path("oidc/", include("mozilla_django_oidc.urls")),
     path("", include("abaque.urls")),
 ]

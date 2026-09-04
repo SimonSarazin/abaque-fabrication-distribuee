@@ -1,3 +1,5 @@
 Django>=5.2,<6
+mozilla-django-oidc>=5,<6
+python-dotenv>=1.1,<2
 whitenoise>=6.12,<7
 gunicorn>=26,<27

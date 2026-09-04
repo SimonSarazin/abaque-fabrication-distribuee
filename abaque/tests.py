@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .models import UserConfiguration, UserSavedJob
+from .oidc_backend import AbaqueOIDCBackend
 from .views import ACCESS_GROUP_NAME
 
 
@@ -263,6 +264,21 @@ class RegistrationTests(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="newuser2").exists())
+
+
+class OIDCBackendTests(TestCase):
+    def test_oidc_username_collision_gets_unique_suffix(self):
+        User.objects.create_user(username="simons", email="local@example.com")
+        claims = {
+            "preferred_username": "simons",
+            "email": "sso@example.com",
+            "sub": "oidc-user-123",
+        }
+
+        user = AbaqueOIDCBackend().create_user(claims)
+
+        self.assertNotEqual(user.username, "simons")
+        self.assertEqual(user.email, "sso@example.com")
 
 
 class LogoutTests(TestCase):
