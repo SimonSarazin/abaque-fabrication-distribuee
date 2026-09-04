@@ -76,8 +76,27 @@ Les réglages sensibles se font par variables d'environnement (valeurs de dével
 | `SECRET_KEY` | `dev-secret-key` | Clé secrète Django — **obligatoire en production** |
 | `DEBUG` | `true` | Mode debug (`true`/`false`) |
 | `ALLOWED_HOSTS` | `*` si `DEBUG`, vide sinon | Hôtes autorisés, séparés par des virgules |
+| `OIDC_CLIENT_ID` | vide | Identifiant client fourni par le fournisseur SSO |
+| `OIDC_CLIENT_SECRET` | vide | Secret client fourni par le fournisseur SSO |
+| `OIDC_DISCOVERY_URL` | vide | URL du document `.well-known/openid-configuration` |
+| `OIDC_SIGN_ALGORITHM` | `RS256` | Algorithme de signature OIDC |
 
 En production (`DEBUG=false`), les cookies sécurisés et la redirection HTTPS (`SECURE_SSL_REDIRECT`) sont activés automatiquement.
+
+### Connexion SSO (OIDC)
+
+Le bouton « Se connecter avec le SSO » utilise OpenID Connect. Dans la
+configuration du fournisseur (Keycloak, Entra ID, Authentik, etc.), déclarer
+comme URI de redirection :
+
+```text
+https://votre-domaine.fr/oidc/callback/
+```
+
+Renseigner ensuite les variables `OIDC_*` ci-dessus. Le premier utilisateur
+SSO est créé comme utilisateur Django local, mais doit toujours être ajouté au
+groupe **« Utilisateurs actifs »** par un administrateur avant d'accéder à
+l'application.
 
 ## Structure du projet
 
